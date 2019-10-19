@@ -30,15 +30,15 @@ void loop()
 
    if(distance <= 10 )  //  사람이 문앞까지오면 열림
   {  
+    delay(2000);  // 사람이 들어가고 나가는 시간고려 딜레이1
     for(motor = 0; motor < 180; motor += 1)  // 0도에서 180도로 이동합니다.                               // 이동할때 각도는 1도씩 이동합니다. 
     myservo.write(motor);              // 'motor'변수의 위치로 서보를 이동시킵니다.
-    delay(25);                       //  
   } 
   else if (distance <= 500)  // 눈앞에 사람이 없으면 닫힘
   {                                    
+    delay(2000); // 사람이 들어가고 나가는 시간고려 딜레이2
     for(motor = 180; motor >= 10; motor -=1)  // 180도에서 10도로 이동합니다.                                   
-    myservo.write(motor);              // 서보를 반대방향으로 이동합니다.
-    delay(25);                       //   
+    myservo.write(motor);              // 서보를 반대방향으로 이동합니다.                    
   } 
   
   Serial.print(distance); //초음파 시리얼모니터링
