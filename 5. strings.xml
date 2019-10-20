@@ -1,0 +1,9 @@
+5. strings.xml
+
+<resources>
+    <string name="app_name">Program000</string>
+    <string-array name="mode">
+        <item >Manual</item>
+        <item >High_FUN</item>
+    </string-array>
+</resources>
