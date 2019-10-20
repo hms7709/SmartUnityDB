@@ -1,0 +1,54 @@
+4. action_bar.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ToggleButton
+        android:id="@+id/SecurityToggle"
+        android:layout_width="88dp"
+        android:layout_height="40dp"
+        android:textColorLink="@android:color/holo_blue_bright"
+        android:textOff="Sc_ON"
+        android:textOn="Sc_OFF"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="16dp"
+        app:layout_constraintRight_toLeftOf="@+id/pass_word"
+        android:layout_marginRight="70dp"
+        android:layout_marginLeft="100dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintHorizontal_bias="1.0" />
+
+    <EditText
+        android:id="@+id/pass_word"
+        android:layout_width="120dp"
+        android:layout_height="40dp"
+        android:ems="10"
+        android:hint="비밀번호 입력"
+        android:inputType="textPersonName"
+        android:textColor="@color/BLUE100"
+        android:textColorHint="@color/PINK100"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginLeft="170dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintHorizontal_bias="0.929"
+        android:password="true"/>
+
+    <Spinner
+        android:id="@+id/Mode_Select"
+        android:layout_width="100dp"
+        android:layout_height="35dp"
+        android:background="@color/WHITE100"
+        android:entries="@array/mode"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="16dp"
+        app:layout_constraintRight_toLeftOf="@+id/SecurityToggle"
+        android:layout_marginRight="5dp" />
+
+</android.support.constraint.ConstraintLayout>
