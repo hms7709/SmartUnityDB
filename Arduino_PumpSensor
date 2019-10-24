@@ -1,0 +1,40 @@
+int A_1A = 11; //모터드라이브 A_1A 핀 변수 선언
+int A_2A = 12; //모터드라이브 A_1B 핀 변수 선언
+ 
+void setup()
+{
+  pinMode(4, INPUT);      //스위치 모듈의 pinMode 선언
+  pinMode(A_1A, OUTPUT);  //모터드라이브 A_1A의 pinMode 선언
+  pinMode(A_2A, OUTPUT);  //모터드라이브 A_1B의 pinMode 선언
+}
+ 
+void loop(){
+ 
+  int  button = digitalRead(4); //스위치 모듈의 값을 읽음.
+  if(button == 1){              //스위치 모듈을 누르면 값이 1로 변경이됨. 
+  pump(1);                      //pump 함수 호출
+  } else{
+     stop();                    //스위치 모듈을 누르고 있지 않은 경우 모터 멈춤
+  }
+  delay(1000);                  //지연 1초
+}
+ 
+ 
+void pump(int flag)
+{
+  boolean inPin1 = HIGH;
+  boolean inPin2 = LOW;
+ 
+  if(flag == 1){           
+    inPin1 = HIGH;          //서로 값이 달라야 정방향, 역방향 회전
+    inPin2 = LOW;           //혹시나 모터가 약하다 싶으면 역방향 회전이므로 
+                            //inPin1과 inPin2의 값을 서로 바꿔준다.
+  }
+    digitalWrite(A_1A, inPin1);  //워터 펌프 A_1A에 write
+    digitalWrite(A_2A, inPin2);  //워터 펌프 A_1B에 write
+}
+ 
+void stop(){
+    digitalWrite(A_1A, LOW); //A_1A와 A_2A 둘다 LOW 면 모터가 멈춤
+    digitalWrite(A_2A, LOW);
+}
