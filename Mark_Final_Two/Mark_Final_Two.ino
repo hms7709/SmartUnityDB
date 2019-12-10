@@ -23,16 +23,13 @@ Servo myservo;
 int servoPin = 7;
 Keypad mykeypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
-unsigned long intervals[] = {5000, 10000, 2000};
-unsigned long last[] = {0, 0, 0};
-int Liquid_level = 0;
-int notouch_water = 12;
+unsigned long intervals[] = {5000, 10000};
+unsigned long last[] = {0, 0};
 
 void setup()
 {
   Serial.begin(9600);
   pinMode (mistery_buzzer, OUTPUT);
-  pinMode(notouch_water, INPUT);
   myservo.attach(servoPin);
   myservo.write(90);
   pinMode(relay, OUTPUT);
@@ -204,12 +201,6 @@ void loop()
        last[1] = now;
        Task1();
    }
-
-   if(now - last[2] >= intervals[2])
-   {
-       last[2] = now;
-       Task2();
-   }
 }
 
 void Task0()
@@ -220,13 +211,6 @@ void Task0()
 void Task1()
 {
    digitalWrite(relay, LOW);
-}
-
-void Task2()
-{
-  Liquid_level = digitalRead(notouch_water);
-  Serial.print("Liquid_level = ");
-  Serial.println(Liquid_level, DEC);
 }
 
 void replay()
