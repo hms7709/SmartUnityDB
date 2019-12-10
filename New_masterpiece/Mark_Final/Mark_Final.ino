@@ -15,6 +15,7 @@ int frontdoor = 5;
 int bedroomdoor = 6;
 int Tx = 10;
 int Rx = 11;
+int notouch_water = 12; 
 int cds = A0;
 int flame = A1;
 int fenceLED = 22;
@@ -32,13 +33,15 @@ LiquidCrystal_I2C mylcd (0x27, 16, 2);  // 거실 LCD
 byte buffer[1024];
 int pushstate = 0;
 int bufferPosition = 0;
-unsigned long intervals[] = {2000 ,3000, 4000, 5000};
-unsigned long last[] = {0, 0, 0, 0};
+unsigned long intervals[] = {2000 ,4000, 6000, 8000, 10000};
+unsigned long last[] = {0, 0, 0, 0, 0};
+int Liquid_level = 0; 
 
 void setup() {
   pinMode(pushbutton, INPUT_PULLUP);
   pinMode(flame, INPUT);
   pinMode(cds, INPUT);
+  pinMode(notouch_water, INPUT);
   pinMode(fenceLED, OUTPUT);
   pinMode(yardLED, OUTPUT);
   pinMode(bedroomLED[0], OUTPUT);
@@ -90,6 +93,12 @@ void loop() {
    {
        last[3] = now;
        Task3();
+   }
+
+   if(now - last[4] >= intervals[4])
+   {
+       last[4] = now;
+       Task4();
    }
    
   if (BTSerial.available()) {
@@ -199,7 +208,7 @@ void Task0() {
   mylcd.setCursor(0, 0);
   mylcd.print("Welcome People  ");
   mylcd.setCursor(0, 1);
-  mylcd.print("This is I-HOME      ");
+  mylcd.print("This is I-HOME       ");
 }
 
 void Task1() {
@@ -226,7 +235,7 @@ void Task2() {
    Serial.print("CDS : ");
    Serial.println(cdsvalue);
    mylcd.setCursor(0, 0);
-   mylcd.print("CDS VALUE      ");
+   mylcd.print("CDS VALUE       ");
    mylcd.setCursor(0, 1);
    mylcd.print(cdsvalue);
    mylcd.print("           ");
@@ -246,7 +255,7 @@ void Task3(){
    Serial.print("flame : ");
    Serial.println(flamevalue);
    mylcd.setCursor(0, 0);
-   mylcd.print("FLAME VALUE    ");
+   mylcd.print("FLAME VALUE     ");
    mylcd.setCursor(0, 1);
    mylcd.print(flamevalue);
    mylcd.print("           ");
@@ -259,6 +268,17 @@ void Task3(){
   {
     noTone(buzzer);
   }
+}
+
+void Task4(){
+   Liquid_level = digitalRead(12);
+   Serial.print("Liquid_level = ");
+   Serial.println(Liquid_level, DEC);
+   mylcd.setCursor(0, 0);
+   mylcd.print("WATER VALUE    ");
+   mylcd.setCursor(0, 1);
+   mylcd.print(Liquid_level);
+   mylcd.print("               ");
 }
 
 void isr() {
