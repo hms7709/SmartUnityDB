@@ -9,7 +9,6 @@
 
 Servo pianoservo;
 int misterymotor = 7;
-Keypad mykeypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
 int pushbutton = 2;
 int frontdoor = 5;
@@ -31,10 +30,10 @@ Servo bedroomservo;
 DHT DHTsensor(4, DHT11);
 LiquidCrystal_I2C mylcd (0x27, 16, 2);  // 거실 LCD
 byte buffer[1024];
-volatile int pushstate = 0;
+int pushstate = 0;
 int bufferPosition = 0;
-unsigned long intervals[] = {10000, 10000, 10000};
-unsigned long last[] = {0, 0, 0};
+unsigned long intervals[] = {2000 ,3000, 4000, 5000};
+unsigned long last[] = {0, 0, 0, 0};
 
 void setup() {
   pinMode(pushbutton, INPUT_PULLUP);
@@ -68,13 +67,13 @@ void setup() {
 void loop() {
 
    unsigned long now = millis();
-      
+
    if(now - last[0] >= intervals[0])
    {
        last[0] = now;
        Task0();
    }
-
+      
    if(now - last[1] >= intervals[1])
    {
        last[1] = now;
@@ -86,6 +85,12 @@ void loop() {
        last[2] = now;
        Task2();
    }
+
+   if(now - last[3] >= intervals[3])
+   {
+       last[3] = now;
+       Task3();
+   }
    
   if (BTSerial.available()) {
       byte data = BTSerial.read();
@@ -94,33 +99,33 @@ void loop() {
 
       if (data == 'a') // 주방
       {
-         digitalWrite(kitchenLED[0], 0);
-         digitalWrite(kitchenLED[1], 0);
-         digitalWrite(kitchenLED[2], 255);
+         analogWrite(kitchenLED[0], 255);
+         analogWrite(kitchenLED[1], 0);
+         analogWrite(kitchenLED[2], 0);
       }
 
       else if (data == 'A')
       {
-         digitalWrite(kitchenLED[0], 255);
-         digitalWrite(kitchenLED[1], 255);
-         digitalWrite(kitchenLED[2], 255);
+         analogWrite(kitchenLED[0], 255);
+         analogWrite(kitchenLED[1], 255);
+         analogWrite(kitchenLED[2], 255);
       }
 
       else if (data == 'b') // 화장실
       {
-         digitalWrite(restroomLED[0], 255);
-         digitalWrite(restroomLED[1], 0);
-         digitalWrite(restroomLED[2], 255);
+         analogWrite(restroomLED[0], 255);
+         analogWrite(restroomLED[1], 0);
+         analogWrite(restroomLED[2], 255);
       }
 
       else if (data == 'B') 
       {
-         digitalWrite(restroomLED[0], 255);
-         digitalWrite(restroomLED[1], 255);
-         digitalWrite(restroomLED[2], 255);
+         analogWrite(restroomLED[0], 255);
+         analogWrite(restroomLED[1], 255);
+         analogWrite(restroomLED[2], 255);
       }
 
-      if (data == 'c') // 울타리 LED ON
+      else if (data == 'c') // 울타리 LED ON
       {
          digitalWrite(fenceLED, HIGH);
       }
@@ -142,7 +147,7 @@ void loop() {
 
       else if (data == 'e')   // 정문 Open
       {
-         frontservo.write(179);         
+         frontservo.write(90);         
       }
       
       else if (data == 'E')  // 정문 Close
@@ -152,58 +157,101 @@ void loop() {
 
       else if (data == 'f')  // 안방
       {
-         digitalWrite(bedroomLED[0], 0);
-         digitalWrite(bedroomLED[1], 255);
-         digitalWrite(bedroomLED[2], 0);
+         analogWrite(bedroomLED[0], 0);
+         analogWrite(bedroomLED[1], 255);
+         analogWrite(bedroomLED[2], 0);
       }
 
       else if (data == 'F')  // 안방
       {
-         digitalWrite(bedroomLED[0], 255);
-         digitalWrite(bedroomLED[1], 255);
-         digitalWrite(bedroomLED[2], 255);
+         analogWrite(bedroomLED[0], 255);
+         analogWrite(bedroomLED[1], 255);
+         analogWrite(bedroomLED[2], 255);
       }
-  }
+      else if (data == 'g')  // 수면 모드
+      {
+         analogWrite(bedroomLED[0], 0);
+         analogWrite(bedroomLED[1], 255);
+         analogWrite(bedroomLED[2], 0);
+         analogWrite(kitchenLED[0], 0);
+         analogWrite(kitchenLED[1], 255);
+         analogWrite(kitchenLED[2], 0);
+         analogWrite(restroomLED[0], 0);
+         analogWrite(restroomLED[1], 255);
+         analogWrite(restroomLED[2], 0);
+      }
+      else if (data == 'G')  // 일반 모드
+      {
+         analogWrite(kitchenLED[0], 255);
+         analogWrite(kitchenLED[1], 255);
+         analogWrite(kitchenLED[2], 255);
+         analogWrite(restroomLED[0], 255);
+         analogWrite(restroomLED[1], 255);
+         analogWrite(restroomLED[2], 255);
+         analogWrite(bedroomLED[0], 255);
+         analogWrite(bedroomLED[1], 255);
+         analogWrite(bedroomLED[2], 255);
+      }
+   }
 }
 
 void Task0() {
-    float humi = DHTsensor.readHumidity();
-    float temp = DHTsensor.readTemperature();
-    Serial.print("Temp : ");
-    Serial.print(temp);
-    Serial.print("C ");
-    Serial.print("humi : ");
-    Serial.print(humi);
-    Serial.println("%");
-    mylcd.setCursor(0, 0);
-    mylcd.print("Temp : ");
-    mylcd.print(temp);
-    mylcd.print(" C");
-    mylcd.setCursor(0, 1);
-    mylcd.print("Humi : ");
-    mylcd.print(humi);
-    mylcd.print(" %");
+  mylcd.setCursor(0, 0);
+  mylcd.print("Welcome People  ");
+  mylcd.setCursor(0, 1);
+  mylcd.print("This is I-HOME      ");
 }
 
 void Task1() {
-  int cdsvalue = analogRead(cds);
-  Serial.print("CDS : ");
-  Serial.println(cdsvalue);
+   float humi = DHTsensor.readHumidity();
+   float temp = DHTsensor.readTemperature();
+   Serial.print("Temp : ");
+   Serial.print(temp);
+   Serial.print("C ");
+   Serial.print("humi : ");
+   Serial.print(humi);
+   Serial.println("%");
+   mylcd.setCursor(0, 0);
+   mylcd.print("Temp : ");
+   mylcd.print(temp);
+   mylcd.print(" C");
+   mylcd.setCursor(0, 1);
+   mylcd.print("Humi : ");
+   mylcd.print(humi);
+   mylcd.print(" %");
+}
+
+void Task2() {
+   int cdsvalue = analogRead(cds);
+   Serial.print("CDS : ");
+   Serial.println(cdsvalue);
+   mylcd.setCursor(0, 0);
+   mylcd.print("CDS VALUE      ");
+   mylcd.setCursor(0, 1);
+   mylcd.print(cdsvalue);
+   mylcd.print("           ");
+   
   if (cdsvalue < 200)
-  {
-    bedroomservo.write(80);
-  }
-  else
   {
     bedroomservo.write(0);
   }
+  else
+  {
+    bedroomservo.write(80);
+  }
 }
 
-void Task2(){
-  int flamevalue = analogRead(flame);
-  Serial.print("flame : ");
-  Serial.println(flamevalue);
-  if (flamevalue < 400)
+void Task3(){
+   int flamevalue = analogRead(flame);
+   Serial.print("flame : ");
+   Serial.println(flamevalue);
+   mylcd.setCursor(0, 0);
+   mylcd.print("FLAME VALUE    ");
+   mylcd.setCursor(0, 1);
+   mylcd.print(flamevalue);
+   mylcd.print("           ");
+   
+  if (flamevalue < 800)
   {
     tone(buzzer, 956); 
   }
