@@ -1,3 +1,4 @@
+#include <SimpleTimer.h>
 #include <Servo.h>
 #include "pitches.h"
 #include <SoftwareSerial.h>
@@ -7,9 +8,8 @@
 #include <Keypad.h>
 #include <LiquidCrystal_I2C.h>
 
-Servo pianoservo;
+SimpleTimer timer1, timer2;
 int misterymotor = 7;
-
 int pushbutton = 2;
 int frontdoor = 5;
 int bedroomdoor = 6;
@@ -31,6 +31,7 @@ Servo bedroomservo;
 DHT DHTsensor(4, DHT11);
 LiquidCrystal_I2C mylcd (0x27, 16, 2);  // 거실 LCD
 byte buffer[1024];
+int ledcount = 0;
 int pushstate = 0;
 int bufferPosition = 0;
 unsigned long intervals[] = {2000 ,4000, 6000, 8000, 10000};
@@ -56,8 +57,6 @@ void setup() {
   pinMode(buzzer, OUTPUT);
   frontservo.attach(frontdoor);
   bedroomservo.attach(bedroomdoor);
-  pianoservo.attach(misterymotor);
-  pianoservo.write(0);
   DHTsensor.begin();
   mylcd.init();
   mylcd.backlight();
@@ -101,7 +100,7 @@ void loop() {
        Task4();
    }
    
-  if (BTSerial.available()) {
+   if (BTSerial.available()) {
       byte data = BTSerial.read();
       Serial.write(data);
       buffer[bufferPosition++] = data;
@@ -135,7 +134,7 @@ void loop() {
       }
 
       else if (data == 'c') // 울타리 LED ON
-      {
+      {  
          digitalWrite(fenceLED, HIGH);
       }
 
@@ -179,18 +178,6 @@ void loop() {
       }
       else if (data == 'g')  // 수면 모드
       {
-         analogWrite(bedroomLED[0], 0);
-         analogWrite(bedroomLED[1], 255);
-         analogWrite(bedroomLED[2], 0);
-         analogWrite(kitchenLED[0], 0);
-         analogWrite(kitchenLED[1], 255);
-         analogWrite(kitchenLED[2], 0);
-         analogWrite(restroomLED[0], 0);
-         analogWrite(restroomLED[1], 255);
-         analogWrite(restroomLED[2], 0);
-      }
-      else if (data == 'G')  // 일반 모드
-      {
          analogWrite(kitchenLED[0], 255);
          analogWrite(kitchenLED[1], 255);
          analogWrite(kitchenLED[2], 255);
@@ -200,8 +187,31 @@ void loop() {
          analogWrite(bedroomLED[0], 255);
          analogWrite(bedroomLED[1], 255);
          analogWrite(bedroomLED[2], 255);
+         digitalWrite(fenceLED, LOW);
+         digitalWrite(yardLED, LOW);
+      }
+      else if (data == 'G')  // 일반 모드
+      {
+         analogWrite(kitchenLED[0], 0);
+         analogWrite(kitchenLED[1], 0);
+         analogWrite(kitchenLED[2], 0);
+         analogWrite(restroomLED[0], 0);
+         analogWrite(restroomLED[1], 0);
+         analogWrite(restroomLED[2], 0);
+         analogWrite(bedroomLED[0], 0);
+         analogWrite(bedroomLED[1], 0);
+         analogWrite(bedroomLED[2], 0);
+         digitalWrite(fenceLED, HIGH);
+         digitalWrite(yardLED, HIGH);
+      }
+      else if (data == 'h')  // 전시 모드
+      {
+         ledcount++;
+         led_display();
       }
    }
+   timer1.run();
+   timer2.run();
 }
 
 void Task0() {
@@ -279,6 +289,42 @@ void Task4(){
    mylcd.setCursor(0, 1);
    mylcd.print(Liquid_level);
    mylcd.print("               ");
+}
+
+void LED_ON(){
+    digitalWrite(fenceLED, HIGH);
+    digitalWrite(yardLED, HIGH);
+}
+
+void LED_OFF(){
+    digitalWrite(fenceLED, LOW);
+    digitalWrite(yardLED, LOW);
+}
+
+void led_display() {       
+    if (ledcount == 1)
+    {
+          timer1.setTimeout(1000, LED_ON);
+          timer2.setTimeout(3000, LED_OFF);
+          timer1.setTimeout(5000, LED_ON);
+          timer2.setTimeout(7000, LED_OFF);
+          timer1.setTimeout(9000, LED_ON);
+          timer2.setTimeout(11000, LED_OFF);
+          timer1.setTimeout(13000, LED_ON);
+          timer2.setTimeout(15000, LED_OFF);
+          timer1.setTimeout(17000, LED_ON);
+          timer2.setTimeout(19000, LED_OFF);
+          timer1.setTimeout(21000, LED_ON);
+          timer2.setTimeout(23000, LED_OFF);
+          timer1.setTimeout(25000, LED_ON);
+          timer2.setTimeout(27000, LED_OFF);
+          timer1.setTimeout(29000, LED_ON);
+          timer2.setTimeout(31000, LED_OFF);
+          timer1.setTimeout(33000, LED_ON);
+          timer2.setTimeout(35000, LED_OFF);
+          timer1.setTimeout(37000, LED_ON);
+          timer2.setTimeout(39000, LED_OFF);   
+   }       
 }
 
 void isr() {
