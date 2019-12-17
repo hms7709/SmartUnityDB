@@ -6,7 +6,7 @@
  
 const char* ssid     = "Smartunity";    // "Wi-Fi ID"
 const char* password = "unity1234";     // "비밀번호"
-String host = "http://192.168.0.6";     // "Host 주소"
+String host = "http://192.168.0.10";     // "Host 주소"
 int brightness = A0;                    // 조도센서 핀을 A0로 설정
 const long interval = 5000;             // 타이머 인터럽트를 위한 시간 간격 설정
 unsigned long previousMillis = 0;       
@@ -15,7 +15,7 @@ WiFiServer server(80);
 WiFiClient client;
 HTTPClient http;                        // http 이름으로 HTTPClient 객체 생성
 DHT DHTsensor(PIN_DHT, DHT11);
- 
+
 void setup() {
   DHTsensor.begin();                    // DHT11 온습도 센서 초기화
   pinMode(brightness, INPUT);           // 조도센서 핀 설정
@@ -27,7 +27,7 @@ void setup() {
     Serial.print(".");
   }
   // Wi-Fi 접속 상태 확인
-  Serial.println("");
+  Serial.println("------------------------");
   Serial.print("Connecting to ");
   Serial.println(ssid);
   Serial.print("IP address: ");
@@ -50,7 +50,7 @@ void loop() {
     Serial.println(phpHost);
     
     http.begin(client, phpHost);
-    http.setTimeout(3000);     
+    http.setTimeout(5000);     
     int httpCode = http.GET();
    
     if(httpCode > 0) {  // 연결이 성공할 경우
@@ -77,36 +77,141 @@ void loop() {
   String request = client.readStringUntil('\r');
   Serial.println("request: ");
   Serial.println(request);
- 
+  
   while(client.available()) {
     client.read();
   }
- 
+
   float Humidity = DHTsensor.readHumidity();
   float Temperature = DHTsensor.readTemperature();
+  float far = DHTsensor.readTemperature(true);
   int Cdsvalue = analogRead(brightness);
-  client.print("HTTP/1.1 200 OK");
+
+  client.println("HTTP/1.1 200 OK");
   client.print("Content-Type: text/html\r\n\r\n");
-  client.print("<!DOCTYPE HTML>");
-  client.print("<html>");
-  client.print("<head>"); 
-  client.print("<meta charset=\"UTF-8\" http-equiv=\"refresh\" content=\"1\">");
-  client.print("<title>Sensor Webpage</title>");
-  client.print("</head>");
-  client.print("<body>");
-  client.print("<h2>Sensor Webpage</h2>");
+  client.println("");
+  client.println("<!DOCTYPE HTML>");
+  client.println("<html>");
+  client.println("<head>"); 
+  client.println("<meta charset=\"UTF-8\" http-equiv=\"refresh\" content=\"1\">");
+  client.println("<title>Sensor Webpage</title>");
+  client.println("<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>");
+  client.println("<script type=\"text/javascript\">");
+  client.println("google.load('visualization', '1', {'packages':['gauge']});");
+  client.println("google.setOnLoadCallback(drawChart);");
+
+  // Temperature
+  client.println("function drawChart() {");
+  client.println("var data = google.visualization.arrayToDataTable([ ");
+  client.println("['label', 'Value1'], ");
+  client.print("['Temp',  ");
+  client.print(Temperature);
+  client.println(" ], ");
+  client.println("        ]);  ");
+
+  client.println("var options = {");
+  client.println("width: 500, height: 120,");
+  client.println("redFrom: 0, redTo: 25,");
+  client.println("yellowFrom: 25, yellowTo: 75,");
+  client.println("greenFrom: 75, greenTo: 100,");
+  client.print("minorTicks: 5");
+  client.print("    };");
+  client.println("var chart = new google.visualization.Gauge(document.getElementById('gauge1'));");
+  client.println("chart.draw(data, options);");
+  client.println(" }");
+  
+  client.println(" </script>");
+  client.println(" </head>");
+  client.println(" <body>");
+  client.println("<center>");
+  client.println("<h1 style=\"size:14px;\">I-Home_SensorDataBase</h1>");
+  client.print("<br>");
   client.print("Temperature : ");
   client.print(Temperature);
   client.print(" °C");
+  client.print("<br>");
+  client.print("<br>");
+  client.print("<div class=\"container-fluid\">");
+  client.print("<div id=\"gauge1\" style=\"width: 300px; height: 120px;\"></div>");
+  
+  client.print("</div>");
+
+  // Humidity
+  client.println("<script type=\"text/javascript\">");
+  client.println("google.load('visualization', '2', {'packages':['gauge']});");
+  client.println("google.setOnLoadCallback(drawChart);");
+
+  client.println("function drawChart() {");
+  client.println("var data = google.visualization.arrayToDataTable([ ");
+  client.println("['label', 'Value2'], ");
+  client.print("        ['Humi',  ");
+  client.print(Humidity);
+  client.println(" ], ");
+  client.println("        ]);  ");
+
+  client.println(" var options = {");
+  client.println("width: 500, height: 120,");
+  client.println("redFrom: 0, redTo: 25,");
+  client.println("yellowFrom: 25, yellowTo: 75,");
+  client.println("greenFrom: 75, greenTo: 100,");
+  client.print("minorTicks: 5");
+  client.print("    };");
+  client.println("var chart = new google.visualization.Gauge(document.getElementById('gauge2'));");
+  client.println("chart.draw(data, options);");
+  client.println(" }");
+
+  client.println(" </script>");
+  client.println(" </head>");
+  client.println(" <body>");
+  client.println("<center>");
   client.print("<br>");
   client.print("Humidity : ");
   client.print(Humidity);
   client.print(" %");
   client.print("<br>");
-  client.print("CDS VALUES : ");
+  client.print("<br>");
+  client.println("<div class=\"container-fluid\">");
+  client.println("<div id=\"gauge2\" style=\"width: 300px; height: 120px;\"></div>");
+  client.println("</div>");
+
+  // Brightness
+  client.println("<script type=\"text/javascript\">");
+  client.println("google.load('visualization', '3', {'packages':['gauge']});");
+  client.println("google.setOnLoadCallback(drawChart);");
+
+  client.println("function drawChart() {");
+  client.println("var data = google.visualization.arrayToDataTable([ ");
+  client.println("['label', 'Value3'], ");
+  client.print("        ['CDS',  ");
   client.print(Cdsvalue);
-  client.print("</body>");
-  client.print("</html>");
- 
-  Serial.println("클라이언트 연결 해제");
+  client.println(" ], ");
+  client.println("        ]);  ");
+
+  client.println("var options = {");
+  client.println("min: 0, max: 700, ");
+  client.println("width: 500, height: 120,");
+  client.println("redFrom: 0, redTo: 300,");
+  client.println("yellowFrom: 300, yellowTo: 500,");
+  client.println("greenFrom: 500, greenTo: 700,");
+  client.print("minorTicks: 5");
+  client.print("    };");
+  client.println("var chart = new google.visualization.Gauge(document.getElementById('gauge3'));");
+  client.println("chart.draw(data, options);");
+  client.println(" }");
+
+  client.println(" </script>");
+  client.println(" </head>");
+  client.println(" <body>");
+  client.println("<center>");
+  client.print("<br>");
+  client.print("Brightness : ");
+  client.print(Cdsvalue);
+  client.print("<br>");
+  client.print("<br>");
+  client.println("<div class=\"container-fluid\">");
+  client.println("<div id=\"gauge3\" style=\"width: 300px; height: 120px;\"></div>");
+  client.println("</div>");
+  client.println("</center>");
+  client.println("</body>");
+  client.println("</html>");
 }
