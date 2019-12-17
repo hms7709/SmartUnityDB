@@ -84,7 +84,6 @@ void loop() {
 
   float Humidity = DHTsensor.readHumidity();
   float Temperature = DHTsensor.readTemperature();
-  float far = DHTsensor.readTemperature(true);
   int Cdsvalue = analogRead(brightness);
 
   client.println("HTTP/1.1 200 OK");
